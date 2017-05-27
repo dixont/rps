@@ -1,0 +1,25 @@
+{
+	"ImportPath": "github.com/dixont/rps/server",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v74",
+	"Deps": [
+		{
+			"ImportPath": "github.com/dgrijalva/jwt-go",
+			"Comment": "v3.0.0-18-g6c8dedd",
+			"Rev": "6c8dedd55f8a2e41f605de6d5d66e51ed1f299fc"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Comment": "v1.1.0-29-ga91eba7",
+			"Rev": "a91eba7f97777409bc2c443f5534d41dd20c5720"
+		},
+		{
+			"ImportPath": "github.com/levenlabs/go-llog",
+			"Rev": "fb430f9a19e97c19a4f799a99cde74efcbfc702f"
+		},
+		{
+			"ImportPath": "github.com/levenlabs/golib/errctx",
+			"Rev": "5d2e0c2ae24e7257917e4ef5806d2ec1e8289c35"
+		}
+	]
+}
