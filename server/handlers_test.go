@@ -25,7 +25,8 @@ func TestUserRegisterIsValid(t *testing.T) {
 	} {
 		req := httptest.NewRequest("POST", "localhost:8000/register", bytes.NewReader([]byte(testCase.body)))
 		w := httptest.NewRecorder()
-		handleRegister(w, req)
+		handleRegister := &registerHandler{Secret: "NotReallyButKindOfSecret"}
+		handleRegister.ServeHTTP(w, req)
 
 		resp := w.Result()
 		body, _ := ioutil.ReadAll(resp.Body)
@@ -39,7 +40,9 @@ func TestUserTokenGeneration(t *testing.T) {
 	assert := assert.New(t)
 	req := httptest.NewRequest("POST", "localhost:8000/register", bytes.NewReader([]byte(`{"username": "username"}`)))
 	w := httptest.NewRecorder()
-	handleRegister(w, req)
+
+	handleRegister := &registerHandler{Secret: "NotReallyButKindOfSecret"}
+	handleRegister.ServeHTTP(w, req)
 
 	resp := w.Result()
 
