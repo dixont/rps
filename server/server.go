@@ -24,7 +24,6 @@ func main() {
 	}
 
 	logLevel := os.Getenv("LOG_LEVEL")
-
 	if len(logLevel) == 0 {
 		llog.Info("No log level set in environment variables, setting it to INFO.")
 		llog.SetLevelFromString("INFO")

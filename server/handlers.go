@@ -13,19 +13,19 @@ import (
 )
 
 type UserStateClaims struct {
-	Username string `json:"username"`
-	Gold     int    `json:"gold"`
-	// recommended having
-	jwt.StandardClaims
+	Username           string `json:"username"`
+	Gold               int    `json:"gold"`
+	jwt.StandardClaims        // for expiration time
 }
 
 type Challenge struct {
-	Username         string `json:"username"`
-	InitialGold      int
-	Gold             int    `json:"gold"`
-	Throw            string `json:"throw"`
-	Token            string `json:"token"`
-	MessageType      int
+	Username    string `json:"username"`
+	InitialGold int
+	Gold        int    `json:"gold"`
+	Throw       string `json:"throw"`
+	Token       string `json:"token"`
+	MessageType int
+	// TODO: Unsure of holding off socket connections in queue like this. Potential memory or concurrency issues?
 	SocketConnection *websocket.Conn
 }
 
@@ -57,13 +57,14 @@ func (handler *queueHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 		return
 	}
 	for {
+		// Read incoming challenge message, parsing out the challenge
 		messageType, p, _ := conn.ReadMessage()
 		bodyDecoder := json.NewDecoder(bytes.NewReader(p))
 
 		var userChallenge Challenge
 		err = bodyDecoder.Decode(&userChallenge)
 
-		//Ensure the request has a token
+		//Ensure the challenge has a token
 		if userChallenge.Token == "" {
 			llog.Error(fmt.Sprintf("User making request with no token"))
 			res, _ := json.Marshal(&ChallengeResponse{Error: "You must register and make the challenge with your state token."})
