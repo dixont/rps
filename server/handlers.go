@@ -71,8 +71,6 @@ func (handler *queueHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 			conn.WriteMessage(messageType, res)
 		}
 		userState, ok := parseToken(userChallenge.Token, handler.Secret)
-		llog.Info(strconv.Itoa(userChallenge.Gold))
-		llog.Info(strconv.Itoa(userState.Gold))
 		if !ok { // Error in parsing user token
 			llog.Error(fmt.Sprintf("User %s making request with potentially bogus token", userChallenge.Username))
 			res, _ := json.Marshal(&ChallengeResponse{Error: "Trying to make request with bad token?"})
