@@ -14,7 +14,15 @@ Rock Paper Scissors coding challenge
 3. `npm start`
 4. If a browser doesn't automatically open with the app location, it should be at `localhost:3000`
 
+(To play against yourself, open `localhost:3000` in 2 tabs)
+
 ### Test me!
 1. `cd server`
 2. `godep restore`
 3. `go test`
+
+### Next steps
+Just a few next steps that would round out the project:
+1. Views testing
+2. More verbose testing of websocket handlers
+3. Improved UX
