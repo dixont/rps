@@ -1,0 +1,24 @@
+.App {
+  text-align: center;
+}
+
+.throw-button {
+  height: 50px;
+  width: 50px;
+  padding: 0;
+  position: relative;
+}
+.throw-button:first-of-type{
+  display: block;
+  text-align: center;
+  margin: 0 auto;
+}
+.throw-button img {
+  height: 46px;
+  width: 46px;
+}
+.rock-button span{
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}

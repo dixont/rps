@@ -1,0 +1,40 @@
+{
+	"ImportPath": "github.com/dixont/rps/server",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v74",
+	"Deps": [
+		{
+			"ImportPath": "github.com/davecgh/go-spew/spew",
+			"Comment": "v1.1.0",
+			"Rev": "346938d642f2ec3594ed81d874461961cd0faa76"
+		},
+		{
+			"ImportPath": "github.com/dgrijalva/jwt-go",
+			"Comment": "v3.0.0-18-g6c8dedd",
+			"Rev": "6c8dedd55f8a2e41f605de6d5d66e51ed1f299fc"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Comment": "v1.1.0-29-ga91eba7",
+			"Rev": "a91eba7f97777409bc2c443f5534d41dd20c5720"
+		},
+		{
+			"ImportPath": "github.com/levenlabs/go-llog",
+			"Rev": "fb430f9a19e97c19a4f799a99cde74efcbfc702f"
+		},
+		{
+			"ImportPath": "github.com/levenlabs/golib/errctx",
+			"Rev": "5d2e0c2ae24e7257917e4ef5806d2ec1e8289c35"
+		},
+		{
+			"ImportPath": "github.com/pmezard/go-difflib/difflib",
+			"Comment": "v1.0.0",
+			"Rev": "792786c7400a136282c1664665ae0a8db921c6c2"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.1.4-49-ge68c5c5",
+			"Rev": "e68c5c520826657b647fb9090f1620f8862e7b72"
+		}
+	]
+}
