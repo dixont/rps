@@ -25,6 +25,7 @@ type Challenge struct {
 	Throw       string `json:"throw"`
 	Token       string `json:"token"`
 	MessageType int
+	RemoteAddr  string // Only viable in case of no load balancer or reverse proxy
 	// TODO: Unsure of holding off socket connections in queue like this. Potential memory or concurrency issues?
 	SocketConnection *websocket.Conn
 }
@@ -89,6 +90,7 @@ func (handler *queueHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 			userChallenge.InitialGold = userState.Gold
 			userChallenge.SocketConnection = conn
 			userChallenge.MessageType = messageType
+			userChallenge.RemoteAddr = req.RemoteAddr
 			llog.Debug(fmt.Sprintf("%s making a bet of %s with throw %s", userChallenge.Username, strconv.Itoa(userChallenge.Gold), userChallenge.Throw))
 
 			if len(handler.Queue) > 0 {
@@ -111,13 +113,21 @@ func handleChallenges(challengeOne Challenge, challengeTwo Challenge, secret str
 	loserState := "LOSS"
 	// if it is a tie, set both challenge golds to 0, otherwise, set the victors and losers appropriately and respond with winnings
 	if challengeOne.Throw == challengeTwo.Throw {
-		llog.Info(fmt.Sprintf("User %s and User %s draw when both throwing %s. Both keep their original ammount.", challengeOne.Username, challengeTwo.Username, challengeOne.Throw))
 		victor = challengeOne
-		victor.Gold = 0
 		loser = challengeTwo
-		loser.Gold = 0
 		victorState = "TIE"
 		loserState = "TIE"
+		llog.Info(fmt.Sprintf("User %s and User %s draw when both throwing %s. Both keep their original ammount.", challengeOne.Username, challengeTwo.Username, challengeOne.Throw),
+			llog.KV{
+				"user1ip":    victor.RemoteAddr,
+				"user1bet":   victor.Gold,
+				"user1throw": victor.Throw,
+				"user2ip":    loser.RemoteAddr,
+				"user2bet":   loser.Gold,
+				"user2throw": loser.Throw,
+			})
+		victor.Gold = 0
+		loser.Gold = 0
 	} else if (challengeOne.Throw == "r" && challengeTwo.Throw == "s") ||
 		(challengeOne.Throw == "p" && challengeTwo.Throw == "r") ||
 		(challengeOne.Throw == "s" && challengeTwo.Throw == "p") {
@@ -129,7 +139,15 @@ func handleChallenges(challengeOne Challenge, challengeTwo Challenge, secret str
 	}
 
 	if loserState != "TIE" {
-		llog.Info(fmt.Sprintf("User %s (threw %s) beat User %s (threw %s), Victor gets %s", victor.Username, victor.Throw, loser.Username, loser.Throw, strconv.Itoa(victor.Gold+loser.Gold)))
+		llog.Info(fmt.Sprintf("User %s beat User %s, Victor gets %s gold", victor.Username, loser.Username, strconv.Itoa(victor.Gold+loser.Gold)),
+			llog.KV{
+				"victorip":    victor.RemoteAddr,
+				"victorbet":   victor.Gold,
+				"victorthrow": victor.Throw,
+				"loserip":     loser.RemoteAddr,
+				"loserbet":    loser.Gold,
+				"loserthrow":  loser.Throw,
+			})
 	}
 
 	// Return users their new state and gold amount, then close the connection
