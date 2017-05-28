@@ -1,54 +1,14 @@
 package main
 
 import (
+	"github.com/gorilla/websocket"
 	"github.com/levenlabs/go-llog"
+	"github.com/rs/cors"
 	"net/http"
 	"os"
-	"github.com/dgrijalva/jwt-go"
-	"fmt"
-	"context"
 )
 
-func validateUserState(secret string, authenticatedHandler http.Handler) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		cookie, err := req.Cookie("Authorization")
-
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprintf(w, "User must register before accessing this route.")
-			return
-		}
-
-		tokenFromCookie := cookie.Value[8:]
-
-		// Parse the token from the cookie
-		token, err := jwt.ParseWithClaims(tokenFromCookie, &UserStateClaims{}, func(token *jwt.Token) (interface{}, error) {
-			return []byte(secret), nil
-		})
-
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprintf(w, "Has someone been tampering with their token? That's unfortunate...")
-			return
-		}
-
-		// Grab the tokens claims and pass it into the original request
-		claims, ok := token.Claims.(*UserStateClaims);
-
-		if  ok && token.Valid {
-			ctx := context.WithValue(req.Context(), "UserState", *claims)
-			authenticatedHandler.ServeHTTP(w, req.WithContext(ctx))
-		} else {
-			w.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprintf(w, "Has someone been tampering with their token? That's unfortunate...")
-			return
-		}
-	})
-}
-
 func main() {
-
-
 
 	// Configure server based on environment variables
 	port := os.Getenv("PORT")
@@ -78,10 +38,20 @@ func main() {
 
 	}
 
-	http.Handle("/register", &registerHandler{Secret: secret})
-	http.Handle("/challenge", validateUserState(secret, &queueHandler{}))
+	// Set up a cors handler as middle ware to allow for easy communication between
+	// two different serving ports.
+	c := cors.Default()
+	mux := http.NewServeMux()
+	mux.Handle("/register", c.Handler(&registerHandler{Secret: secret}))
+	mux.Handle("/challenge", c.Handler(&queueHandler{Secret: secret, Upgrader: websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		//TODO: Check origin against app origin to. Or serve js app from this server.
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}}))
+	handler := cors.Default().Handler(mux)
 
-	err := http.ListenAndServe(":"+port, nil)
+	err := http.ListenAndServe(":"+port, handler)
 
 	if err != nil {
 		llog.Fatal(err.Error())
